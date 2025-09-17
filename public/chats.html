@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Чат</title>
+	</head>
+	<body>
+		<main>
+			<!-- Левая панель с каналами -->
+			<div class="channels">
+				<h2>Каналы</h2>
+				<div id="channelList"></div>
+				<button id="createChannelBtn">+ Канал</button>
+			</div>
+
+			<!-- Правая панель с чатом -->
+			<div id="chatContainer">
+				<div id="chatWindow"></div>
+				<div id="messageInput">
+					<input type="text" id="msgInput" placeholder="Введите сообщение..." />
+					<button id="sendBtn">Отправить</button>
+				</div>
+				<div id="participants">
+					<h3>Участники</h3>
+					<div id="participantList"></div>
+				</div>
+			</div>
+		</main>
+	</body>
+</html>

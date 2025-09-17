@@ -1,0 +1,75 @@
+/* Базовые настройки */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	width: 100%;
+
+	font-family: 'Inter', 'Arial', sans-serif;
+}
+
+main {
+	height: 100vh;
+
+	display: flex;
+	justify-content: center;
+
+	background: #ebebeb;
+}
+
+.content {
+	margin-top: 50px;
+	padding: 40px 30px;
+	border-radius: 12px;
+	max-width: 360px;
+	width: 100%;
+
+	max-height: 290px;
+	width: 100%;
+
+	background: #ffffff;
+	text-align: center;
+}
+
+.content h2 {
+	margin-bottom: 25px;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.form p {
+	color: #5e5e5e;
+	text-align: left;
+}
+
+.form select {
+	padding: 10px;
+	font-size: 14px;
+}
+
+.form button {
+	padding: 12px;
+	background: #4e88ca;
+	color: #fff;
+	font-size: 15px;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.form button:hover {
+	background: #367ac9;
+}
+
+.form button:active {
+	transform: scale(0.95);
+}
