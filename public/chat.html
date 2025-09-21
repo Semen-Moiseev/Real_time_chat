@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="chat-style.css" />
+
+		<title>Чат</title>
+	</head>
+	<body>
+		<!-- Левая панель с каналами -->
+		<aside>
+			<div id="current-user"></div>
+			<input id="new-channel" placeholder="Новый канал" />
+			<button id="create-channel">Создать</button>
+			<h3>Каналы:</h3>
+			<div id="channel-list"></div>
+		</aside>
+
+		<!-- Правая панель с чатом -->
+		<main>
+			<div id="chat-header"></div>
+			<div id="participants-panel" class="hidden"></div>
+			<div id="messages"></div>
+
+			<div id="message-box">
+				<input id="message-input" placeholder="Сообщение..." />
+				<button id="send-btn">Отправить</button>
+			</div>
+		</main>
+
+		<script src="chat.js"></script>
+	</body>
+</html>

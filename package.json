@@ -20,6 +20,8 @@
   "homepage": "https://github.com/Semen-Moiseev/Real_time_chat#readme",
   "dependencies": {
     "express": "^5.1.0",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "uuid": "^13.0.0",
+    "ws": "^8.18.3"
   }
 }

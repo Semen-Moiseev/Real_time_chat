@@ -32,7 +32,5 @@ document.getElementById('loginBtn').addEventListener('click', () => {
 
 	// Сохраняем в localStorage (будет доступно в chat.html)
 	localStorage.setItem('currentUser', JSON.stringify(currentUser))
-
-	// Переход на страницу чата
-	window.location.href = '/chats.html'
+	window.location.href = '/chat.html'
 })
