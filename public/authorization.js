@@ -1,10 +1,11 @@
+//Asynchronous function for uploading users to select
 async function loadUsers() {
 	try {
 		const res = await fetch('/users')
 		const users = await res.json()
 
 		const select = document.getElementById('userSelect')
-		select.innerHTML = '' //Удаляем начальную строку placeholder
+		select.innerHTML = '' //Deleting the placeholder row
 
 		users.forEach(user => {
 			const option = document.createElement('option')
@@ -21,7 +22,6 @@ loadUsers()
 
 document.getElementById('loginBtn').addEventListener('click', () => {
 	const select = document.getElementById('userSelect')
-
 	const selectedId = select.value
 	const selectedName = select.options[select.selectedIndex].text
 
@@ -30,7 +30,7 @@ document.getElementById('loginBtn').addEventListener('click', () => {
 		name: selectedName,
 	}
 
-	// Сохраняем в localStorage (будет доступно в chat.html)
+	//Saving in localStorage
 	localStorage.setItem('currentUser', JSON.stringify(currentUser))
 	window.location.href = '/chat.html'
 })

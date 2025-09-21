@@ -4,9 +4,9 @@ const fs = require('fs') //A module for working with files
 const app = express() //Create express server
 
 const { WebSocketServer } = require('ws')
-const { v4: uuidv4 } = require('uuid') //Уникальный id WebSocket соединения
+const { v4: uuidv4 } = require('uuid') //Unique WebSocket connection ID
 
-app.use(express.static(path.join(__dirname, 'public'))) //Отдаём статические файлы из public
+app.use(express.static(path.join(__dirname, 'public'))) //Static files from public
 
 //Givin a JSON dataset with users
 app.get('/users', (req, res) => {
@@ -20,17 +20,16 @@ app.get('/users', (req, res) => {
 	}
 })
 
-// Запуск Express и WebSocket
+//Launching Express and WebSocket
 const server = app.listen(3000, () => {
 	console.log('Сервер: http://localhost:3000')
 })
 const wss = new WebSocketServer({ server })
 
-// Данные в памяти о каналах и онлайн пользователях
 const channels = {} //id, name, creatorId, participants: [], messages: []
 const onlineUsers = {} //id, name
 
-// Отправка сообщения всем
+//Sending to all
 function broadcast(payload) {
 	const data = JSON.stringify(payload)
 	wss.clients.forEach(client => {
@@ -38,10 +37,10 @@ function broadcast(payload) {
 	})
 }
 
-// Обработка WS соединений
+//Processing of WS connections
 wss.on('connection', ws => {
 	const socketId = uuidv4()
-	ws.sid = socketId //Сохраняем в сокете
+	ws.sid = socketId //Saving the id in the socket
 
 	ws.on('message', raw => {
 		let msg
@@ -53,7 +52,7 @@ wss.on('connection', ws => {
 		const { type, payload } = msg
 
 		switch (type) {
-			//Инициализация клиента
+			//Client initialization
 			case 'init': {
 				const usersJSON = JSON.parse(
 					fs.readFileSync(path.join(__dirname, 'users.json'))
@@ -64,7 +63,7 @@ wss.on('connection', ws => {
 				break
 			}
 
-			//Авторизация пользователя
+			//User authorization
 			case 'login': {
 				onlineUsers[socketId] = { id: payload.id, name: payload.name }
 				broadcast({
@@ -74,9 +73,8 @@ wss.on('connection', ws => {
 				break
 			}
 
-			//Создание канала
 			case 'create_channel': {
-				const channelId = uuidv4() // Уникальный ID канала
+				const channelId = uuidv4() //Unique channel ID
 				channels[channelId] = {
 					id: channelId,
 					name: payload.name,
@@ -88,7 +86,6 @@ wss.on('connection', ws => {
 				break
 			}
 
-			//Присоединение к каналу
 			case 'join_channel': {
 				const channel = channels[payload.channelId]
 				if (channel && !channel.participants.includes(payload.userId)) {
@@ -98,9 +95,8 @@ wss.on('connection', ws => {
 				break
 			}
 
-			//Новое сообщение
 			case 'new_message': {
-				const messageId = uuidv4() // Уникальный ID сообщения
+				const messageId = uuidv4() //Unique message ID
 				const channel = channels[payload.channelId]
 				if (!channel) return
 				const message = {
@@ -117,7 +113,6 @@ wss.on('connection', ws => {
 				break
 			}
 
-			//Удалить пользователя из канала
 			case 'remove_user': {
 				const channel = channels[payload.channelId]
 				if (channel) {
@@ -126,15 +121,15 @@ wss.on('connection', ws => {
 					)
 					broadcast({ type: 'channels_update', payload: channels })
 
-					// найти удалённого юзера и отправить ему "kicked"
+					//Find a remote user and send them a "kicked"
 					for (const [sid, user] of Object.entries(onlineUsers)) {
-						// ищем в onlineUsers пользователя с таким id
+						//Find a user with this id in onlineUsers
 						if (user.id === payload.userId) {
-							// перебираем все открытые WebSocket соединения
+							//Iterating through all open WebSocket connections
 							wss.clients.forEach(c => {
-								// ищем то самое соединение по sid
+								//Looking for the same connection by sid
 								if (c.readyState === 1 && c.sid === sid) {
-									// отправляем только ему сообщение
+									//Send a message only to him
 									c.send(
 										JSON.stringify({
 											type: 'kicked',

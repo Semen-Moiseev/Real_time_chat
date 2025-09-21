@@ -1,45 +1,41 @@
-const me = JSON.parse(localStorage.getItem('currentUser')) //Получаем текущего пользователя
-if (!me) window.location.href = 'login.html' //Если его нет — редирект обратно на страницу авторизации
+const me = JSON.parse(localStorage.getItem('currentUser')) //Getting the current user
+if (!me) window.location.href = 'login.html'
 
 document.getElementById('current-user').textContent = `Профиль: ${me.name}`
 
-const WS_URL = 'ws://localhost:3000' //Подключение к WebSocket-серверу
-const ws = new WebSocket(WS_URL)
+const ws = new WebSocket('ws://localhost:3000') //Connecting to a WebSocket server
 
-let channels = {} //хранит все каналы с участниками и сообщениями
-let users = {} //список онлайн пользователей {id, name}
-let selectedChannel = null //текущий выбранный канал для отображения чата
+let channels = {}
+let onlineUsers = {}
+let selectedChannel = null
 
-//отправляем сообщение init, чтобы сервер прислал состояние (пользователи + каналы)
 ws.onopen = () => {
 	ws.send(JSON.stringify({ type: 'init' }))
 	ws.send(JSON.stringify({ type: 'login', payload: me }))
 }
 
-//обработка сообщений от сервера
+//Processing messages from the server
 ws.onmessage = e => {
 	const msg = JSON.parse(e.data)
 	switch (msg.type) {
-		//Клиент получает данные (Все каналы) и перерисовывает в левой колонке
+		//The client receives data (channels)
 		case 'state':
 			channels = msg.payload.channels
 			renderChannels()
 			break
 
-		//Вызывается при добавлении или удалении участника из канала
 		case 'online_update':
-			users = msg.payload
+			onlineUsers = msg.payload
 			if (selectedChannel) renderChat(selectedChannel)
 			break
 
-		//Обновление каналов
 		case 'channels_update':
 			channels = msg.payload
 			renderChannels()
 			if (selectedChannel) renderChat(selectedChannel)
 			break
 
-		//Новое сообщение
+		//New message
 		case 'message':
 			if (channels[msg.payload.channelId]) {
 				channels[msg.payload.channelId].messages.push(msg.payload.message)
@@ -47,7 +43,6 @@ ws.onmessage = e => {
 			}
 			break
 
-		//Кик пользователя
 		case 'kicked':
 			if (selectedChannel === msg.payload.channelId) {
 				alert('Вас удалили из канала!')
@@ -60,7 +55,7 @@ ws.onmessage = e => {
 	}
 }
 
-//Создание нового канала
+//Creating a new channel
 document.getElementById('create-channel').onclick = () => {
 	const input = document.getElementById('new-channel')
 	if (!input.value.trim()) return
@@ -73,7 +68,7 @@ document.getElementById('create-channel').onclick = () => {
 	input.value = ''
 }
 
-//Отображает список каналов в боковой панели
+//Displaying the channel list
 function renderChannels() {
 	const list = document.getElementById('channel-list')
 	list.innerHTML = ''
@@ -94,7 +89,7 @@ function renderChannels() {
 	})
 }
 
-//отображает название канала и кнопку для открытия панели участников
+//Displaying the channel name and the "participants" button
 function renderChat(channelId) {
 	const channel = channels[channelId]
 	if (!channel) return
@@ -106,7 +101,7 @@ function renderChat(channelId) {
 	renderMessages()
 }
 
-//Панель участников
+//Displaying the participant panel
 window.toggleParticipants = channelId => {
 	const panel = document.getElementById('participants-panel')
 	const channel = channels[channelId]
@@ -115,32 +110,31 @@ window.toggleParticipants = channelId => {
 
 	panel.dataset.channel = channelId
 	panel.classList.remove('hidden')
-
-	// Добавляем поиск + контейнер для списка участников
 	panel.innerHTML = `<h4>Участники:</h4>
 	<input type="text" id="search-user" placeholder="Поиск по имени...">
 	<div id="participants-list"></div>`
 
 	const listDiv = document.getElementById('participants-list')
 
-	// функция отрисовки списка участников
+	//Displaying the participant list
 	const renderList = (filter = '') => {
 		listDiv.innerHTML = ''
 		channel.participants.forEach(pid => {
-			const user = users.find(user => user.id === pid) || {
+			const user = onlineUsers.find(user => user.id === pid) || {
 				id: pid,
 				name: pid,
 			}
 			const name = user.name
 
 			if (name.toLowerCase().includes(filter.toLowerCase())) {
-				// кнопка удаления только для создателя
+				//The button for deleting participants is only for the channel creator
 				if (channel.creatorId === me.id && pid !== me.id) {
 					listDiv.innerHTML += `
-            <div>
-              ${name}
-              <button id="delBtn" onclick="removeUser('${channelId}', '${pid}')">❌</button>
-            </div>`
+					<div>
+					${name}
+					<button id="delBtn" onclick="removeUser('${channelId}', '${pid}')">❌</button>
+					</div>
+					`
 				} else {
 					listDiv.innerHTML += `<div>${name}${
 						pid === me.id ? ' (вы)' : ''
@@ -152,26 +146,26 @@ window.toggleParticipants = channelId => {
 
 	renderList()
 
-	// слушаем ввод в поиск
+	//Listening to the search input
 	document.getElementById('search-user').addEventListener('input', e => {
 		renderList(e.target.value)
 	})
 }
 
-// функция удаления
+//Participant removal function
 window.removeUser = (channelId, userId) => {
 	ws.send(
 		JSON.stringify({ type: 'remove_user', payload: { channelId, userId } })
 	)
 }
 
-//выводит все сообщения текущего канала с именами пользователей
+//Output of all channel messages
 function renderMessages() {
 	const channel = channels[selectedChannel]
 	const messagesDiv = document.getElementById('messages')
 	messagesDiv.innerHTML = ''
 	;(channel.messages || []).forEach(m => {
-		const user = users.find(x => x.id === m.userId)
+		const user = onlineUsers.find(x => x.id === m.userId)
 		const div = document.createElement('div')
 		div.className = 'message'
 		div.innerHTML = `<b>${user ? user.name : '?'}</b>: ${m.text}`
@@ -180,7 +174,7 @@ function renderMessages() {
 	messagesDiv.scrollTop = messagesDiv.scrollHeight
 }
 
-//Отправка сообщений
+//Sending messages
 document.getElementById('send-btn').onclick = () => {
 	const input = document.getElementById('message-input')
 	if (!input.value.trim()) return
