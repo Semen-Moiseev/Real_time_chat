@@ -26,7 +26,7 @@ Functional:
 - Node.js
 
 ----------------------------------------------------------------------------
-# Book_registry <ins>***RU***</ins>
+# Real_time_chat <ins>***RU***</ins>
 
 Реализовать real-time чат
 
