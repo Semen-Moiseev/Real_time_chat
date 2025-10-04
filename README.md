@@ -1,4 +1,4 @@
-# Real_time_chat <ins>***EN***</ins>
+# realtime-chat-js-frontend <ins>***EN***</ins>
 
 ## Project Description
 
@@ -26,7 +26,7 @@ Functional:
 - Node.js
 
 ----------------------------------------------------------------------------
-# Real_time_chat <ins>***RU***</ins>
+# realtime-chat-js-frontend <ins>***RU***</ins>
 
 Реализовать real-time чат
 
